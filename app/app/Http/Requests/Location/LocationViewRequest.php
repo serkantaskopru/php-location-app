@@ -7,14 +7,6 @@ use Illuminate\Foundation\Http\FormRequest;
 class LocationViewRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
-     */
-    public function authorize(): bool
-    {
-        return false;
-    }
-
-    /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
@@ -22,7 +14,19 @@ class LocationViewRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'location' => [
+                'required',
+                'integer',
+                'exists:locations,id',
+            ],
         ];
     }
+
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'location' => $this->route('location'),
+        ]);
+    }
+
 }

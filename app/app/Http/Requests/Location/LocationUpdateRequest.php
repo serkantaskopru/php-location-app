@@ -7,13 +7,6 @@ use Illuminate\Validation\Rule;
 
 class LocationUpdateRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
-    public function authorize(): bool
-    {
-        return false;
-    }
 
     /**
      * Get the validation rules that apply to the request.
@@ -23,18 +16,36 @@ class LocationUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255',
-            'color' => 'required|string|size:7',
+            'location' => [
+                'required',
+                'integer',
+                'exists:locations,id',
+            ],
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+            ],
+            'color' => [
+                'required',
+                'string',
+                'size:7',
+            ],
             'latitude' => [
                 'required',
                 'numeric',
-                Rule::exists('locations', 'latitude')
             ],
             'longitude' => [
                 'required',
                 'numeric',
-                Rule::exists('locations', 'longitude')
             ],
         ];
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'location' => $this->route('location'),
+        ]);
     }
 }

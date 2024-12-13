@@ -16,17 +16,19 @@ class LocationDestroyRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'latitude' => [
+            'location' => [
                 'required',
-                'numeric',
-                Rule::exists('locations', 'latitude')
-            ],
-            'longitude' => [
-                'required',
-                'numeric',
-                Rule::exists('locations', 'longitude')
+                'integer',
+                'exists:locations,id',
             ],
         ];
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'location' => $this->route('location'),
+        ]);
     }
 
 }
