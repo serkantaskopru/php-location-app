@@ -40,10 +40,9 @@ class LocationController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(LocationViewRequest $request): JsonResponse
+    public function show(LocationViewRequest $request, $location): JsonResponse
     {
-        $validated_request = $request->validated();
-        $result = $this->locationService->detail($validated_request['latitude'], $validated_request['longitude']);
+        $result = $this->locationService->detail($location);
 
         return response()->json($result, $result['status'] ? 200 : 500);
     }
@@ -51,13 +50,11 @@ class LocationController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(LocationUpdateRequest $request): JsonResponse
+    public function update(LocationUpdateRequest $request, $location): JsonResponse
     {
-        $data = $request->only(['name', 'color']);
-        $latitude = $request->input('latitude');
-        $longitude = $request->input('longitude');
+        $data = $request->only(['name', 'color', 'latitude', 'longitude']);
 
-        $result = $this->locationService->update($latitude, $longitude, $data);
+        $result = $this->locationService->update($location, $data);
 
         return response()->json($result, $result['status'] ? 200 : 500);
     }
@@ -65,10 +62,9 @@ class LocationController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(LocationDestroyRequest $request): JsonResponse
+    public function destroy(LocationDestroyRequest $request, $location): JsonResponse
     {
-        $validated_request = $request->validated();
-        $result = $this->locationService->destroy($validated_request['latitude'], $validated_request['longitude']);
+        $result = $this->locationService->destroy($location);
 
         return response()->json($result, $result['status'] ? 200 : 500);
     }

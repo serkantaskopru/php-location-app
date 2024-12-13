@@ -16,10 +16,10 @@ class LocationService
         $this->locationRepository = $locationRepository;
     }
 
-    public function detail($latitude, $longitude): array
+    public function detail($id): array
     {
         try {
-            $location = $this->locationRepository->findByLatLong($latitude, $longitude);
+            $location = $this->locationRepository->find($id);
 
             return [
                 'status' => true,
@@ -77,10 +77,10 @@ class LocationService
         }
     }
 
-    public function update($latitude, $longitude, $data): array
+    public function update($id, $data): array
     {
         try {
-            $location = $this->locationRepository->findByLatLong($latitude, $longitude);
+            $location = $this->locationRepository->find($id);
 
             if (!$location) {
                 return [
@@ -107,10 +107,10 @@ class LocationService
         }
     }
 
-    public function destroy($latitude, $longitude): array
+    public function destroy($id): array
     {
         try {
-            $location = $this->locationRepository->findByLatLong($latitude, $longitude);
+            $location = $this->locationRepository->find($id);
 
             if($location){
                 $this->locationRepository->delete($location);
