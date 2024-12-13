@@ -3,16 +3,10 @@
 namespace App\Http\Requests\Location;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class LocationDestroyRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
-    public function authorize(): bool
-    {
-        return false;
-    }
 
     /**
      * Get the validation rules that apply to the request.
@@ -22,7 +16,17 @@ class LocationDestroyRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'latitude' => [
+                'required',
+                'numeric',
+                Rule::exists('locations', 'latitude')
+            ],
+            'longitude' => [
+                'required',
+                'numeric',
+                Rule::exists('locations', 'longitude')
+            ],
         ];
     }
+
 }

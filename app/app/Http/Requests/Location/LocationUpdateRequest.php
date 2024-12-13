@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Location;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class LocationUpdateRequest extends FormRequest
 {
@@ -22,7 +23,18 @@ class LocationUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'name' => 'required|string|max:255',
+            'color' => 'required|string|size:7',
+            'latitude' => [
+                'required',
+                'numeric',
+                Rule::exists('locations', 'latitude')
+            ],
+            'longitude' => [
+                'required',
+                'numeric',
+                Rule::exists('locations', 'longitude')
+            ],
         ];
     }
 }

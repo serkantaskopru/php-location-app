@@ -21,6 +21,4 @@ class LocationResource extends JsonResource
             'color' => $this->color,
         ];
     }
-
-
 }
