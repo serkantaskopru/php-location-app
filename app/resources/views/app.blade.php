@@ -515,7 +515,7 @@
         _removeRoutePointsFromMap();
         _removeMarkers();
 
-        axios.post(`${apiURL}/api/v1/route-list`,{
+        axios.post(`${apiURL}/api/v1/locations/route-list`,{
             latitude: latitude,
             longitude: longitude,
         })
