@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Http\Resources\LocationResource;
+use App\Http\Resources\LocationRouteResource;
 use App\Models\Location;
 use App\Repositories\LocationRepository;
 use Illuminate\Support\Facades\Log;
@@ -51,6 +52,26 @@ class LocationService
             return [
                 'status' => false,
                 'message' => 'An error occurred while listing the locations',
+                'error' => $e->getMessage()
+            ];
+        }
+    }
+
+    public function getRouteList($latitude, $longitude): array
+    {
+        try {
+            $locations = LocationRouteResource::collection($this->locationRepository->getRouteList($latitude, $longitude));
+
+            return [
+                'status' => true,
+                'data' => $locations
+            ];
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+
+            return [
+                'status' => false,
+                'message' => 'An error occurred while listing the location routes',
                 'error' => $e->getMessage()
             ];
         }

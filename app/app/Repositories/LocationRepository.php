@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\Location;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 
 class LocationRepository
 {
@@ -43,9 +44,25 @@ class LocationRepository
         return $location;
     }
 
-
     public function delete(Location $location): ?bool
     {
         return $location->delete();
+    }
+
+    public function getRouteList($latitude, $longitude): \Illuminate\Support\Collection
+    {
+        return DB::table('locations')
+            ->selectRaw("
+                *,
+                (
+                    (ACOS(
+                        SIN(? * PI() / 180) * SIN(`latitude` * PI() / 180) +
+                        COS(? * PI() / 180) * COS(`latitude` * PI() / 180) *
+                        COS((? - `longitude`) * PI() / 180)
+                    ) * 180 / PI()) * 60 * 1.1515 * 1.609344
+                ) AS `distance`
+            ", [$latitude, $latitude, $longitude])
+            ->orderBy('distance', 'asc')
+            ->get();
     }
 }

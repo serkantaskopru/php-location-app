@@ -98,7 +98,33 @@
                     </div>
                 </div>
                 <div class="tab-pane fade" id="route" role="tabpanel" aria-labelledby="route-tab">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4>Rota Listesi</h4>
+                    </div>
+                    <div class="form-group">
+                        <label for="routeLatitude">Enlem</label>
+                        <input type="number" class="form-control" id="routeLatitude">
+                    </div>
+                    <div class="form-group">
+                        <label for="routeLongitude">Boylam</label>
+                        <input type="number" class="form-control" id="routeLongitude">
+                    </div>
+                    <button type="button" class="btn btn-primary mt-2" onclick="getRouteList()">Rotaları Listele</button>
 
+                    <div class="table-responsive mt-2">
+                        <table class="table table-bordered" id="routes-table">
+                            <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Konum</th>
+                                <th scope="col">Enlem</th>
+                                <th scope="col">Boylam</th>
+                                <th scope="col">Mesafe</th>
+                            </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -154,8 +180,11 @@
 <script>
     let markers = [];
     let selectedLocationID = 0;
+    let pointsForRoutes = [];
+    let pLineGroup = L.layerGroup()
     const apiURL = 'http://localhost:8012';
     const locationsTable = $('#locations-table');
+    const routesTable = $('#routes-table');
     const sidebarMainContent = $('#side-main');
     const sidebarDetailContent = $('#side-detail');
 
@@ -217,6 +246,26 @@
         locationsTable.append('<tbody></tbody>');
     }
 
+    function _clearRoutesTable() {
+        routesTable.find('tbody').remove();
+    }
+
+    function _appendBodyToRoutesTable() {
+        routesTable.append('<tbody></tbody>');
+    }
+
+    function _insertRowToRoutesTable(id, name, lat, long, distance) {
+        let row = `<tr>
+                    <td>${id}</td>
+                    <td>${name}</td>
+                    <td><small>${lat}</small></td>
+                    <td><small>${long}</small></td>
+                    <td><small>${distance.toFixed(2)} km</small></td>
+                    </tr>`
+        ;
+        routesTable.find('tbody').append(row);
+    }
+
     function _insertRowToLocationsTable(id, name, lat, long, marker) {
         let row = `<tr>
                     <td>${id}</td>
@@ -233,23 +282,24 @@
         locationsTable.find('tbody').append(row);
     }
 
-    function _appendMarkerToMap(lat, long, color) {
-
+    function _appendMarkerToMap(lat, long, color, index = 0) {
         const icon = L.divIcon({
-            className: "my-custom-pin",
+            className: "pin",
             iconAnchor: [0, 0],
             labelAnchor: [-6, 0],
             popupAnchor: [0, -36],
             html: `<span style="background-color: ${color};
           width: 1rem;
           height: 1rem;
-          display: block;
           left: -0.5rem;
           top: -0.5rem;
           position: relative;
           border-radius: 1rem 1rem 0;
-          transform: rotate(45deg);
-          border: 1px solid #FFFFFF" />`
+          color: white;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border: 1px solid #FFFFFF">${index}</span>`
         })
 
         const marker = L.marker([lat, long], {icon: icon}).addTo(map);
@@ -266,6 +316,19 @@
         }
     }
 
+    function _removeRoutePointsFromMap() {
+        try {
+            //pLineGroup.removeFrom(map)
+            polylines.forEach(function (item) {
+                map.removeLayer(item)
+            });
+            pointsForRoutes = [];
+            polylines = [];
+        } catch (exception) {
+            console.error(exception);
+        }
+    }
+
     function fetchLocations() {
         _clearLocationsTable();
         _appendBodyToLocationsTable();
@@ -276,7 +339,6 @@
                 console.log('Data:', response.data);
 
                 if (response.data.status === true) {
-                    map.invalidateSize();
 
                     const data = response.data.data;
 
@@ -396,6 +458,52 @@
                     $('input#selectedLocationLongitude').val(location.longitude);
                     $('input#selectedLocationColor').val(location.color);
                 }
+            })
+            .catch(function (error) {
+                console.error('Error:', error);
+            });
+    }
+
+    function lngLatArrayToLatLng(lngLatArray) {
+        return lngLatArray.map(lngLatToLatLng);
+    }
+
+    function lngLatToLatLng(lngLat) {
+        return [lngLat[1], lngLat[0]];
+    }
+
+    var polylines = [];
+
+    function getRouteList(){
+        const latitude = $('input#routeLatitude').val();
+        const longitude = $('input#routeLongitude').val();
+
+        _clearRoutesTable();
+        _appendBodyToRoutesTable();
+        _removeRoutePointsFromMap();
+        _removeMarkers();
+
+        axios.post(`${apiURL}/api/v1/route-list`,{
+            latitude: latitude,
+            longitude: longitude,
+        })
+            .then(function (response) {
+                console.log('Data:', response.data);
+
+                if (response.data.status === true) {
+                    const data = response.data.data;
+                    let i = 0;
+                    data.forEach(element => {
+                        i++;
+                        console.log(element);
+                        pointsForRoutes.push([parseFloat(element.latitude), parseFloat(element.longitude)]);
+
+                        _insertRowToRoutesTable(element.id, element.name, element.latitude, element.longitude, element.distance);
+                        _appendMarkerToMap(element.latitude, element.longitude, element.color, i);
+                    });
+                }
+                const polyline = new L.polyline(pointsForRoutes).addTo(map);
+                polylines.push(polyline);
             })
             .catch(function (error) {
                 console.error('Error:', error);

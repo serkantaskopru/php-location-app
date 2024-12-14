@@ -12,4 +12,5 @@ interface LocationInterface
     public function store(array $data): ?Location;
     public function findByCoordinate($lat, $lon): ?Location;
     public function delete(Location $location): ?bool;
+    public function getRouteList($latitude, $longitude): \Illuminate\Support\Collection;
 }
