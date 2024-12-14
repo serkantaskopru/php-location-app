@@ -44,7 +44,7 @@ class LocationController extends Controller
     {
         $result = $this->locationService->save($request->validated());
 
-        return response()->json($result, $result['status'] ? 200 : 500);
+        return response()->json($result, $result['status'] ? 201 : 500);
     }
 
     /**

@@ -9,15 +9,16 @@ RUN apt-get update && apt-get install -y \
     libjpeg62-turbo-dev \
     libfreetype6-dev \
     libwebp-dev \
-    libjpeg62-turbo-dev \
     libxpm-dev \
     libonig-dev \
     libxml2-dev \
     zip \
     curl \
+    sqlite3 \
+    libsqlite3-dev \
     && pecl install xdebug \
     && docker-php-ext-enable xdebug \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip opcache
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip opcache pdo_sqlite
 
 # Get latest Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
