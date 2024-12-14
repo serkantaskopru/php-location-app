@@ -184,48 +184,52 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
 
 <script>
-    let markers = [];
-    let selectedLocationID = 0;
-    let pointsForRoutes = [];
-    let pLineGroup = L.layerGroup()
-    const apiURL = 'http://localhost:8012';
-    const locationsTable = $('#locations-table');
-    const routesTable = $('#routes-table');
-    const sidebarMainContent = $('#side-main');
-    const sidebarDetailContent = $('#side-detail');
+    let markers = [];  // Harita üzerindeki işaretçiler (marker) için bir dizi
+    let selectedLocationID = 0;  // Seçilen konumun ID'si
+    let pointsForRoutes = [];  // Rotalar için nokta dizisi
+    var polylines = []; // Rotalar için bağlantı dizisi
+    let pLineGroup = L.layerGroup()  // Polyline'lar için grup
+    const apiURL = '{{env('APP_URL')}}';  // API URL'si
+    const locationsTable = $('#locations-table');  // Lokasyonlar tablosu
+    const routesTable = $('#routes-table');  // Rotalar tablosu
+    const sidebarMainContent = $('#side-main');  // Ana kenar çubuğu içeriği
+    const sidebarDetailContent = $('#side-detail');  // Detay kenar çubuğu içeriği
 
-    // Leaflet map start
-    let map = L.map('map').setView([0, 0], 11);
+    // Leaflet harita başlatma
+    let map = L.map('map').setView([0, 0], 11);  // Harita başlatma (ilk görünüm)
 
-    // OpenStreetMap Layer
+    // OpenStreetMap katmanı
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
+    // Axios ayarları
     axios.defaults.headers.common['Accept'] = 'application/json';
 
+    // Axios istek ve yanıt interceptor'ları (gelen ve giden isteklere müdahale)
     axios.interceptors.request.use(
         function (config) {
-            blockUI();
+            blockUI();  // İstek yapılırken ekranı kilitle
             return config;
         },
         function (error) {
-            unblockUI();
+            unblockUI();  // Hata durumunda ekranı serbest bırak
             return Promise.reject(error);
         }
     );
 
     axios.interceptors.response.use(
         function (response) {
-            unblockUI();
+            unblockUI();  // Yanıt alındığında ekranı serbest bırak
             return response;
         },
         function (error) {
-            unblockUI();
+            unblockUI();  // Hata durumunda ekranı serbest bırak
             return Promise.reject(error);
         }
     );
 
+    // Ekranı kilitleme fonksiyonu
     function blockUI() {
         $.blockUI({
             message: '<h6 class="mb-0">Lütfen bekleyin...</h6>',
@@ -240,58 +244,67 @@
         });
     }
 
+    // Ekran kilidini açma fonksiyonu
     function unblockUI() {
         $.unblockUI();
     }
 
+    // Hata mesajlarını göstermek için fonksiyon
     function showErrors(errors){
         toastr.error(errors, 'Hata')
     }
 
+    // Lokasyonlar tablosunu temizleme
     function _clearLocationsTable() {
         locationsTable.find('tbody').remove();
     }
 
+    // Lokasyonlar tablosunun gövdesini ekleme
     function _appendBodyToLocationsTable() {
         locationsTable.append('<tbody></tbody>');
     }
 
+    // Rotalar tablosunu temizleme
     function _clearRoutesTable() {
         routesTable.find('tbody').remove();
     }
 
+    // Rotalar tablosunun gövdesini ekleme
     function _appendBodyToRoutesTable() {
         routesTable.append('<tbody></tbody>');
     }
 
+    // Rotalar tablosuna bir satır ekleme
     function _insertRowToRoutesTable(id, name, lat, long, distance) {
         let row = `<tr>
-                    <td>${id}</td>
-                    <td>${name}</td>
-                    <td><small>${lat}</small></td>
-                    <td><small>${long}</small></td>
-                    <td><small>${distance.toFixed(2)} km</small></td>
-                    </tr>`
+                <td>${id}</td>
+                <td>${name}</td>
+                <td><small>${lat}</small></td>
+                <td><small>${long}</small></td>
+                <td><small>${distance.toFixed(2)} km</small></td>
+                </tr>`
         ;
         routesTable.find('tbody').append(row);
     }
 
+    // Lokasyonlar tablosuna bir satır ekleme
     function _insertRowToLocationsTable(id, name, lat, long, marker) {
         let row = `<tr>
-                    <td>${id}</td>
-                    <td>${name}</td>
-                    <td><small>${lat}</small></td>
-                    <td><small>${long}</small></td>
-                    <td><small>${marker}</small></td>
-                    <td class="d-flex">
-                    <button type="button" class="btn btn-sm btn-primary" onclick="selectLocationForEdit(${id})"><i class="bi bi-pen-fill"></i></button>
-                    <button type="button" class="btn btn-sm btn-danger ms-1" onclick="deleteLocation(${id})"><i class="bi bi-trash3-fill"></i></button>
-                    </td>
-                    </tr>`
+                <td>${id}</td>
+                <td>${name}</td>
+                <td><small>${lat}</small></td>
+                <td><small>${long}</small></td>
+                <td><small>${marker}</small></td>
+                <td class="d-flex">
+                <button type="button" class="btn btn-sm btn-primary" onclick="selectLocationForEdit(${id})"><i class="bi bi-pen-fill"></i></button>
+                <button type="button" class="btn btn-sm btn-danger ms-1" onclick="deleteLocation(${id})"><i class="bi bi-trash3-fill"></i></button>
+                </td>
+                </tr>`
         ;
         locationsTable.find('tbody').append(row);
     }
 
+    // Haritaya bir işaretçi ekleme
     function _appendMarkerToMap(lat, long, color, index = 0) {
         const icon = L.divIcon({
             className: "pin",
@@ -299,23 +312,24 @@
             labelAnchor: [-6, 0],
             popupAnchor: [0, -36],
             html: `<span style="background-color: ${color};
-          width: 1rem;
-          height: 1rem;
-          left: -0.5rem;
-          top: -0.5rem;
-          position: relative;
-          border-radius: 1rem 1rem 0;
-          color: white;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          border: 1px solid #FFFFFF">${index}</span>`
+      width: 1rem;
+      height: 1rem;
+      left: -0.5rem;
+      top: -0.5rem;
+      position: relative;
+      border-radius: 1rem 1rem 0;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #FFFFFF">${index}</span>`
         })
 
         const marker = L.marker([lat, long], {icon: icon}).addTo(map);
-        markers.push(marker);
+        markers.push(marker);  // İşaretçiyi markerlar dizisine ekle
     }
 
+    // Haritadaki işaretçileri kaldırma
     function _removeMarkers() {
         try {
             markers.forEach(marker => {
@@ -326,9 +340,9 @@
         }
     }
 
+    // Rota noktalarını haritadan kaldırma
     function _removeRoutePointsFromMap() {
         try {
-            //pLineGroup.removeFrom(map)
             polylines.forEach(function (item) {
                 map.removeLayer(item)
             });
@@ -339,17 +353,17 @@
         }
     }
 
+    // Lokasyon verilerini API'den çekme
     function fetchLocations() {
-        _clearLocationsTable();
-        _appendBodyToLocationsTable();
-        _removeMarkers();
+        _clearLocationsTable();  // Mevcut tabloyu temizle
+        _appendBodyToLocationsTable();  // Yeni tablo gövdesi ekle
+        _removeMarkers();  // Mevcut işaretçileri kaldır
 
-        axios.get(`${apiURL}/api/v1/locations`)
+        axios.get(`${apiURL}/api/v1/locations`)  // Lokasyon verilerini çek
             .then(function (response) {
                 console.log('Data:', response.data);
 
                 if (response.data.status === true) {
-
                     const data = response.data.data;
 
                     data.forEach(element => {
@@ -376,6 +390,7 @@
 
     }
 
+    // Yeni konum eklemek için form alanlarını temizleme
     function _clearStoreInputs() {
         $('input#name').val('');
         $('input#latitude').val('');
@@ -383,6 +398,7 @@
         $('input#color').val('');
     }
 
+    // Güncellenen konum form alanlarını temizleme
     function _clearUpdateInputs() {
         $('input#selectedLocationName').val('');
         $('input#selectedLocationLatitude').val('');
@@ -390,6 +406,7 @@
         $('input#selectedLocationColor').val('');
     }
 
+    // Yeni bir konum oluşturma
     function createNewLocation() {
         const _name = $('input#name').val();
         const _latitude = $('input#latitude').val();
@@ -404,8 +421,8 @@
         })
             .then(function (response) {
                 console.log('Data:', response.data);
-                _clearStoreInputs();
-                fetchLocations();
+                _clearStoreInputs();  // Girişleri temizle
+                fetchLocations();  // Yeni lokasyonları getir
             })
             .catch(function (error) {
                 console.error('Error:', error);
@@ -416,6 +433,7 @@
             });
     }
 
+    // Seçilen lokasyonu güncelleme
     function updateSelectedLocation() {
         const _name = $('input#selectedLocationName').val();
         const _latitude = $('input#selectedLocationLatitude').val();
@@ -430,9 +448,9 @@
         })
             .then(function (response) {
                 console.log('Data:', response.data);
-                _clearUpdateInputs();
-                closeLocationEditPage();
-                fetchLocations();
+                _clearUpdateInputs();  // Girişleri temizle
+                closeLocationEditPage();  // Düzenleme sayfasını kapat
+                fetchLocations();  // Lokasyonları tekrar getir
             })
             .catch(function (error) {
                 console.error('Error:', error);
@@ -445,13 +463,14 @@
             });
     }
 
+    // Konumu silme
     function deleteLocation(id) {
         axios.delete(`${apiURL}/api/v1/locations/${id}`)
             .then(function (response) {
                 console.log('Data:', response.data);
 
                 if (response.data.status === true) {
-                    fetchLocations();
+                    fetchLocations();  // Lokasyonları tekrar getir
                 }
             })
             .catch(function (error) {
@@ -463,58 +482,46 @@
             });
     }
 
-    function closeLocationEditPage(){
-        sidebarDetailContent.hide();
-        sidebarMainContent.show();
-    }
-
-    function selectLocationForEdit(id){
-        let location = null;
-        selectedLocationID = id;
+    // Lokasyon düzenleme sayfasını açma
+    function selectLocationForEdit(id) {
         sidebarMainContent.hide();
         sidebarDetailContent.show();
 
+        selectedLocationID = id;
         axios.get(`${apiURL}/api/v1/locations/${id}`)
             .then(function (response) {
                 console.log('Data:', response.data);
 
                 if (response.data.status === true) {
-                    location = response.data.data;
-
-                    $('input#selectedLocationName').val(location.name);
-                    $('input#selectedLocationLatitude').val(location.latitude);
-                    $('input#selectedLocationLongitude').val(location.longitude);
-                    $('input#selectedLocationColor').val(location.color);
+                    $('input#selectedLocationName').val(response.data.data.name);
+                    $('input#selectedLocationLatitude').val(response.data.data.latitude);
+                    $('input#selectedLocationLongitude').val(response.data.data.longitude);
+                    $('input#selectedLocationColor').val(response.data.data.color);
                 }
             })
             .catch(function (error) {
                 console.error('Error:', error);
-                if(error.response.data.errors){
-                    const errorMessages = Object.values(error.response.data.errors).flat().join('\n');
-                    showErrors(errorMessages)
-                }
             });
     }
 
-    function lngLatArrayToLatLng(lngLatArray) {
-        return lngLatArray.map(lngLatToLatLng);
+    // Lokasyon düzenleme sayfasını kapama
+    function closeLocationEditPage() {
+        sidebarDetailContent.hide();  // Güncelleme formunu gizle
+        sidebarMainContent.show(); // Ana içerik kısmını göster
     }
-
-    function lngLatToLatLng(lngLat) {
-        return [lngLat[1], lngLat[0]];
-    }
-
-    var polylines = [];
 
     function getRouteList(){
+        // Kullanıcıdan rota için enlem (latitude) ve boylam (longitude) bilgilerini al
         const latitude = $('input#routeLatitude').val();
         const longitude = $('input#routeLongitude').val();
 
+        // Mevcut rotaları temizle ve yeni verilerle doldurmadan önce harita üzerindeki noktaları kaldır
         _clearRoutesTable();
         _appendBodyToRoutesTable();
         _removeRoutePointsFromMap();
         _removeMarkers();
 
+        // API'ye rota listesi almak için bir istek gönder
         axios.post(`${apiURL}/api/v1/locations/route-list`,{
             latitude: latitude,
             longitude: longitude,
@@ -522,29 +529,42 @@
             .then(function (response) {
                 console.log('Data:', response.data);
 
+                // API yanıtı başarılıysa
                 if (response.data.status === true) {
-                    const data = response.data.data;
+                    const data = response.data.data;  // Gelen veriyi al
                     let i = 0;
+
+                    // Verileri döngü ile işleyerek her bir rota için işlemler yap
                     data.forEach(element => {
-                        i++;
+                        i++;  // Rota sırasını artır
                         console.log(element);
+
+                        // Rota noktalarını harita için sakla
                         pointsForRoutes.push([parseFloat(element.latitude), parseFloat(element.longitude)]);
 
+                        // Rota bilgilerini tablodaki listeye ekle
                         _insertRowToRoutesTable(element.id, element.name, element.latitude, element.longitude, element.distance);
+
+                        // Haritaya marker ekle
                         _appendMarkerToMap(element.latitude, element.longitude, element.color, i);
                     });
                 }
+
+                // Rota noktalarını harita üzerinde bir polyline (çizgi) olarak birleştir
                 const polyline = new L.polyline(pointsForRoutes).addTo(map);
-                polylines.push(polyline);
+                polylines.push(polyline);  // Polyline'ı polyline listesine ekle
             })
             .catch(function (error) {
                 console.error('Error:', error);
-                if(error.response.data.errors){
+
+                // API yanıtı hatalıysa, hata mesajlarını göster
+                if (error.response.data.errors){
                     const errorMessages = Object.values(error.response.data.errors).flat().join('\n');
-                    showErrors(errorMessages)
+                    showErrors(errorMessages);
                 }
             });
     }
+
 
     $(document).ready(function () {
         fetchLocations();
