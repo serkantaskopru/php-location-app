@@ -4,7 +4,6 @@ namespace App\Repositories;
 
 use App\Models\Location;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\DB;
 
 class LocationRepository
 {
@@ -46,8 +45,7 @@ class LocationRepository
 
     public function getRouteList($latitude, $longitude): \Illuminate\Support\Collection
     {
-        return DB::table('locations')
-            ->selectRaw("
+        return $this->model->selectRaw("
                 *,
                 (
                     (ACOS(
