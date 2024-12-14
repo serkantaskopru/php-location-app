@@ -13,13 +13,19 @@ use Illuminate\Http\JsonResponse;
 
 class LocationController extends Controller
 {
+    // LocationService sınıfı üzerinden işlemleri yöneten bir özellik tanımlanıyor
     protected LocationService $locationService;
 
+    // Controller'ın constructor'ı ile LocationService inject ediliyor
     public function __construct(LocationService $locationService){
         $this->locationService = $locationService;
     }
+
     /**
-     * Display a listing of the resource.
+     * Konumların listesini döner.
+     *
+     * @param LocationListRequest $request - Listeleme için gerekli doğrulama kuralları
+     * @return JsonResponse - Listeleme sonucunu döner
      */
     public function index(LocationListRequest $request): JsonResponse
     {
@@ -29,7 +35,10 @@ class LocationController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Yeni bir konum oluşturur.
+     *
+     * @param LocationStoreRequest $request - Konum oluşturmak için gerekli doğrulama kuralları
+     * @return JsonResponse - Oluşturma sonucunu döner
      */
     public function store(LocationStoreRequest $request): JsonResponse
     {
@@ -39,7 +48,10 @@ class LocationController extends Controller
     }
 
     /**
-     * Order locations by distance
+     * Gönderilen koordinatlara göre konumları mesafeye göre sıralar.
+     *
+     * @param LocationGetRouteListRequest $request - Mesafeye göre sıralama için gerekli doğrulama kuralları
+     * @return JsonResponse - Sıralama sonucunu döner
      */
     public function getRouteList(LocationGetRouteListRequest $request): JsonResponse
     {
@@ -49,7 +61,11 @@ class LocationController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Belirtilen konumun detaylarını döner.
+     *
+     * @param LocationViewRequest $request - Konum detayını almak için gerekli doğrulama kuralları
+     * @param int $location - Konumun ID'si
+     * @return JsonResponse - Detay sonucunu döner
      */
     public function show(LocationViewRequest $request, $location): JsonResponse
     {
@@ -59,7 +75,11 @@ class LocationController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Mevcut bir konumu günceller.
+     *
+     * @param LocationUpdateRequest $request - Güncelleme için gerekli doğrulama kuralları
+     * @param int $location - Güncellenecek konumun ID'si
+     * @return JsonResponse - Güncelleme sonucunu döner
      */
     public function update(LocationUpdateRequest $request, $location): JsonResponse
     {
@@ -71,7 +91,11 @@ class LocationController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Belirtilen bir konumu siler.
+     *
+     * @param LocationDestroyRequest $request - Silme işlemi için gerekli doğrulama kuralları
+     * @param int $location - Silinecek konumun ID'si
+     * @return JsonResponse - Silme sonucunu döner
      */
     public function destroy(LocationDestroyRequest $request, $location): JsonResponse
     {
