@@ -25,11 +25,6 @@ class LocationRepository
         return $this->model->find($id);
     }
 
-    public function findByLatLong($lat, $lon): ?Location
-    {
-        return $this->model->where('latitude', $lat)->where('longitude', $lon)->first();
-    }
-
     public function store(array $data): ?Location
     {
         return $this->model->create($data);
