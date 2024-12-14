@@ -1,0 +1,28 @@
+name: Laravel CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  web-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: 📂 Sync files
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ftp.serkantaskopru.net.tr
+          username: location@serkantaskopru.net.tr
+          password: ${{ secrets.ftp_password }}
+          local-dir: ./app
+          remote-dir: /
+          exclude: |
+            **/.git*
+            **/node_modules/
+            **/vendor/
+            **/storage/*
