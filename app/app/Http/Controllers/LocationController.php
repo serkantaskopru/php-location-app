@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Location\LocationDestroyRequest;
+use App\Http\Requests\Location\LocationGetRouteListRequest;
 use App\Http\Requests\Location\LocationListRequest;
 use App\Http\Requests\Location\LocationStoreRequest;
 use App\Http\Requests\Location\LocationUpdateRequest;
@@ -33,6 +34,16 @@ class LocationController extends Controller
     public function store(LocationStoreRequest $request): JsonResponse
     {
         $result = $this->locationService->save($request->validated());
+
+        return response()->json($result, $result['status'] ? 200 : 500);
+    }
+
+    /**
+     * Order locations by distance
+     */
+    public function getRouteList(LocationGetRouteListRequest $request): JsonResponse
+    {
+        $result = $this->locationService->getRouteList($request->latitude, $request->longitude);
 
         return response()->json($result, $result['status'] ? 200 : 500);
     }
