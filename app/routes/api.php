@@ -3,7 +3,7 @@
 use App\Http\Controllers\LocationController;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('api/v1')->group(function () {
+Route::middleware('throttle:10,1')->prefix('api/v1')->group(function () {
     // crud işlemleri için tüm api kaynak rotalarını doğrudan resource ile tanımlar
     Route::apiResource('locations', LocationController::class);
 
