@@ -15,7 +15,7 @@ jobs:
           server: ftp.serkantaskopru.net.tr
           username: location@serkantaskopru.net.tr
           password: ${{ secrets.ftp_password }}
-          local-dir: ./app
+          local-dir: ./app/
           remote-dir: /
           exclude: |
             **/.git*
