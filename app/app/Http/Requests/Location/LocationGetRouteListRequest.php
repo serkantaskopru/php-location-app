@@ -17,10 +17,12 @@ class LocationGetRouteListRequest extends FormRequest
             'latitude' => [
                 'required',
                 'numeric',
+                'between:-90,90',
             ],
             'longitude' => [
                 'required',
                 'numeric',
+                'between:-180,180',
             ],
         ];
     }

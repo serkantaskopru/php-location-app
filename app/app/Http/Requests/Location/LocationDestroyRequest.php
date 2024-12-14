@@ -3,7 +3,6 @@
 namespace App\Http\Requests\Location;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class LocationDestroyRequest extends FormRequest
 {

@@ -3,7 +3,6 @@
 namespace App\Http\Requests\Location;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class LocationUpdateRequest extends FormRequest
 {
@@ -26,18 +25,21 @@ class LocationUpdateRequest extends FormRequest
                 'string',
                 'max:255',
             ],
-            'color' => [
-                'required',
-                'string',
-                'size:7',
-            ],
             'latitude' => [
                 'required',
                 'numeric',
+                'between:-90,90',
             ],
             'longitude' => [
                 'required',
                 'numeric',
+                'between:-180,180',
+            ],
+            'color' => [
+                'required',
+                'string',
+                'size:7',
+                'regex:/^#[0-9A-Fa-f]{6}$/',
             ],
         ];
     }

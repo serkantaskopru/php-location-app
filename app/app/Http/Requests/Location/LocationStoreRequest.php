@@ -14,10 +14,27 @@ class LocationStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255',
-            'latitude' => 'required|numeric',
-            'longitude' => 'required|numeric',
-            'color' => 'required|string|size:7',
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+            ],
+            'latitude' => [
+                'required',
+                'numeric',
+                'between:-90,90',
+            ],
+            'longitude' => [
+                'required',
+                'numeric',
+                'between:-180,180',
+            ],
+            'color' => [
+                'required',
+                'string',
+                'size:7',
+                'regex:/^#[0-9A-Fa-f]{6}$/',
+            ],
         ];
     }
 }
