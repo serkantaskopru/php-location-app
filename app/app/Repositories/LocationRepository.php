@@ -2,10 +2,11 @@
 
 namespace App\Repositories;
 
+use App\Interfaces\LocationInterface;
 use App\Models\Location;
 use Illuminate\Database\Eloquent\Collection;
 
-class LocationRepository
+class LocationRepository implements LocationInterface
 {
     protected Location $model;
 
