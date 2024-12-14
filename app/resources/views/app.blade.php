@@ -13,6 +13,9 @@
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 
+    <!-- Toastr CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css"/>
+
     <style>
         #map {
             height: 100%;
@@ -177,6 +180,9 @@
 <!-- BlockUI JS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.blockUI/2.70/jquery.blockUI.min.js"></script>
 
+<!-- Toastr JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
+
 <script>
     let markers = [];
     let selectedLocationID = 0;
@@ -236,6 +242,10 @@
 
     function unblockUI() {
         $.unblockUI();
+    }
+
+    function showErrors(errors){
+        toastr.error(errors, 'Hata')
     }
 
     function _clearLocationsTable() {
@@ -358,6 +368,10 @@
             })
             .catch(function (error) {
                 console.error('Error:', error);
+                if(error.response.data.errors){
+                    const errorMessages = Object.values(error.response.data.errors).flat().join('\n');
+                    showErrors(errorMessages)
+                }
             });
 
     }
@@ -395,6 +409,10 @@
             })
             .catch(function (error) {
                 console.error('Error:', error);
+                if(error.response.data.errors){
+                    const errorMessages = Object.values(error.response.data.errors).flat().join('\n');
+                    showErrors(errorMessages)
+                }
             });
     }
 
@@ -418,6 +436,12 @@
             })
             .catch(function (error) {
                 console.error('Error:', error);
+
+                if(error.response.data.errors){
+                    const errorMessages = Object.values(error.response.data.errors).flat().join('\n');
+                    showErrors(errorMessages)
+                }
+
             });
     }
 
@@ -432,6 +456,10 @@
             })
             .catch(function (error) {
                 console.error('Error:', error);
+                if(error.response.data.errors){
+                    const errorMessages = Object.values(error.response.data.errors).flat().join('\n');
+                    showErrors(errorMessages)
+                }
             });
     }
 
@@ -461,6 +489,10 @@
             })
             .catch(function (error) {
                 console.error('Error:', error);
+                if(error.response.data.errors){
+                    const errorMessages = Object.values(error.response.data.errors).flat().join('\n');
+                    showErrors(errorMessages)
+                }
             });
     }
 
@@ -507,6 +539,10 @@
             })
             .catch(function (error) {
                 console.error('Error:', error);
+                if(error.response.data.errors){
+                    const errorMessages = Object.values(error.response.data.errors).flat().join('\n');
+                    showErrors(errorMessages)
+                }
             });
     }
 
