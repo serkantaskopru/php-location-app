@@ -24,10 +24,9 @@ class LocationController extends Controller
     /**
      * Konumların listesini döner.
      *
-     * @param LocationListRequest $request - Listeleme için gerekli doğrulama kuralları
      * @return JsonResponse - Listeleme sonucunu döner
      */
-    public function index(LocationListRequest $request): JsonResponse
+    public function index(): JsonResponse
     {
         $result = $this->locationService->list();
 
@@ -63,11 +62,10 @@ class LocationController extends Controller
     /**
      * Belirtilen konumun detaylarını döner.
      *
-     * @param LocationViewRequest $request - Konum detayını almak için gerekli doğrulama kuralları
      * @param int $location - Konumun ID'si
      * @return JsonResponse - Detay sonucunu döner
      */
-    public function show(LocationViewRequest $request, $location): JsonResponse
+    public function show(int $location): JsonResponse
     {
         $result = $this->locationService->detail($location);
 
@@ -81,10 +79,9 @@ class LocationController extends Controller
      * @param int $location - Güncellenecek konumun ID'si
      * @return JsonResponse - Güncelleme sonucunu döner
      */
-    public function update(LocationUpdateRequest $request, $location): JsonResponse
+    public function update(LocationUpdateRequest $request, int $location): JsonResponse
     {
         $data = $request->only(['name', 'color', 'latitude', 'longitude']);
-
         $result = $this->locationService->update($location, $data);
 
         return response()->json($result, $result['status'] ? 200 : 500);
@@ -93,11 +90,10 @@ class LocationController extends Controller
     /**
      * Belirtilen bir konumu siler.
      *
-     * @param LocationDestroyRequest $request - Silme işlemi için gerekli doğrulama kuralları
      * @param int $location - Silinecek konumun ID'si
      * @return JsonResponse - Silme sonucunu döner
      */
-    public function destroy(LocationDestroyRequest $request, $location): JsonResponse
+    public function destroy(int $location): JsonResponse
     {
         $result = $this->locationService->destroy($location);
 

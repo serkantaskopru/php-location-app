@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Interfaces\LocationInterface;
 use App\Models\Location;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class LocationRepository implements LocationInterface
 {
@@ -52,26 +53,30 @@ class LocationRepository implements LocationInterface
      *
      * @param int $id
      * @param array $data
-     * @return Location
+     * @return ?int
      */
-    public function update($id, array $data): Location
+    public function update(int $id, array $data): ?int
     {
-        $location = $this->model->findOrFail($id);
-
-        $location->update($data);
-
-        return $location;
+        return $this->model->whereId($id)->update($data);
     }
 
     /**
+    /**
      * Belirli bir konum kaydını siler.
      *
-     * @param Location $location
-     * @return bool|null
+     * @param int $id
+     * @return bool
+     * @throws ModelNotFoundException
      */
-    public function delete(Location $location): ?bool
+    public function delete(int $id): bool
     {
-        return $location->delete();
+        $deleted = $this->model->whereId($id)->delete();
+
+        if (!$deleted) {
+            throw new ModelNotFoundException("Location with ID {$id} not found or already deleted.");
+        }
+
+        return true;
     }
 
     /**

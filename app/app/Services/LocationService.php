@@ -4,9 +4,7 @@ namespace App\Services;
 
 use App\Http\Resources\LocationResource;
 use App\Http\Resources\LocationRouteResource;
-use App\Models\Location;
 use App\Repositories\LocationRepository;
-use Illuminate\Support\Facades\Log;
 
 class LocationService
 {
@@ -19,136 +17,62 @@ class LocationService
 
     public function detail($id): array
     {
-        try {
-            $location = $this->locationRepository->find($id);
+        $location = $this->locationRepository->find($id);
 
-            return [
-                'status' => true,
-                'data' => new LocationResource($location)
-            ];
-        } catch (\Exception $e) {
-            Log::error($e->getMessage());
-
-            return [
-                'status' => false,
-                'message' => 'An error occurred while showing the location',
-                'error' => $e->getMessage()
-            ];
-        }
+        return [
+            'status' => true,
+            'data' => new LocationResource($location)
+        ];
     }
 
     public function list(): array
     {
-        try {
-            $locations = LocationResource::collection($this->locationRepository->all());
+        $locations = LocationResource::collection($this->locationRepository->all());
 
-            return [
-                'status' => true,
-                'data' => $locations
-            ];
-        } catch (\Exception $e) {
-            Log::error($e->getMessage());
-
-            return [
-                'status' => false,
-                'message' => 'An error occurred while listing the locations',
-                'error' => $e->getMessage()
-            ];
-        }
+        return [
+            'status' => true,
+            'data' => $locations
+        ];
     }
 
     public function getRouteList($latitude, $longitude): array
     {
-        try {
-            $locations = LocationRouteResource::collection($this->locationRepository->getRouteList($latitude, $longitude));
+        $locations = LocationRouteResource::collection($this->locationRepository->getRouteList($latitude, $longitude));
 
-            return [
-                'status' => true,
-                'data' => $locations
-            ];
-        } catch (\Exception $e) {
-            Log::error($e->getMessage());
-
-            return [
-                'status' => false,
-                'message' => 'An error occurred while listing the location routes',
-                'error' => $e->getMessage()
-            ];
-        }
+        return [
+            'status' => true,
+            'data' => $locations
+        ];
     }
 
     public function save(array $data): array
     {
-        try {
-            $location = $this->locationRepository->store($data);
+        $location = $this->locationRepository->store($data);
 
-            return [
-                'status' => true,
-                'message' => 'Location created successfully',
-                'data' => new LocationResource($location)
-            ];
-        } catch (\Exception $e) {
-            Log::error($e->getMessage());
-
-            return [
-                'status' => false,
-                'message' => 'An error occurred while creating the location',
-                'error' => $e->getMessage()
-            ];
-        }
+        return [
+            'status' => true,
+            'message' => 'Location created successfully',
+            'data' => new LocationResource($location)
+        ];
     }
 
     public function update($id, $data): array
     {
-        try {
-            $location = $this->locationRepository->find($id);
+        $this->locationRepository->update($id, $data);
 
-            if (!$location) {
-                return [
-                    'status' => false,
-                    'message' => 'Location not found for the given latitude and longitude'
-                ];
-            }
-
-            $location->update($data);
-
-            return [
-                'status' => true,
-                'message' => 'Location updated successfully',
-                'data' => new LocationResource($location)
-            ];
-        } catch (\Exception $e) {
-            Log::error($e->getMessage());
-
-            return [
-                'status' => false,
-                'message' => 'An error occurred while updating the location',
-                'error' => $e->getMessage()
-            ];
-        }
+        return [
+            'status' => true,
+            'message' => 'Location updated successfully'
+        ];
     }
 
     public function destroy($id): array
     {
-        try {
-            $location = $this->locationRepository->find($id);
+        $this->locationRepository->delete($id);
 
-            if($location){
-                $this->locationRepository->delete($location);
-            }
-
-            return [
-                'status' => true,
-                'message' => 'Location deleted successfully',
-            ];
-        } catch (\Exception $e) {
-            Log::error($e->getMessage());
-
-            return [
-                'status' => false,
-                'message' => 'An error occurred while deleting the location',
-                'error' => $e->getMessage()
-            ];
-        }
+        return [
+            'status' => true,
+            'message' => 'Location deleted successfully',
+        ];
     }
 }
