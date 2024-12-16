@@ -275,13 +275,12 @@
     }
 
     // Rotalar tablosuna bir satır ekleme
-    function _insertRowToRoutesTable(id, name, lat, long, distance) {
+    function _insertRowToRoutesTable(index, name, lat, long) {
         let row = `<tr>
-                <td>${id}</td>
+                <td>${index}</td>
                 <td>${name}</td>
                 <td><small>${lat}</small></td>
                 <td><small>${long}</small></td>
-                <td><small>${distance.toFixed(2)} km</small></td>
                 </tr>`
         ;
         routesTable.find('tbody').append(row);
@@ -543,7 +542,7 @@
                         pointsForRoutes.push([parseFloat(element.latitude), parseFloat(element.longitude)]);
 
                         // Rota bilgilerini tablodaki listeye ekle
-                        _insertRowToRoutesTable(element.id, element.name, element.latitude, element.longitude, element.distance);
+                        _insertRowToRoutesTable(i, element.name, element.latitude, element.longitude);
 
                         // Haritaya marker ekle
                         _appendMarkerToMap(element.latitude, element.longitude, element.color, i);
