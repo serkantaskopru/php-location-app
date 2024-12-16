@@ -78,27 +78,4 @@ class LocationRepository implements LocationInterface
 
         return true;
     }
-
-    /**
-     * Verilen koordinatlara (latitude, longitude) göre en yakın konumları mesafeye göre sıralayarak döndürür.
-     *
-     * @param float $latitude
-     * @param float $longitude
-     * @return \Illuminate\Support\Collection
-     */
-    public function getRouteList($latitude, $longitude): \Illuminate\Support\Collection
-    {
-        return $this->model->selectRaw("
-                *,
-                (
-                    (ACOS(
-                        SIN(? * PI() / 180) * SIN(`latitude` * PI() / 180) +
-                        COS(? * PI() / 180) * COS(`latitude` * PI() / 180) *
-                        COS((? - `longitude`) * PI() / 180)
-                    ) * 180 / PI()) * 60 * 1.1515 * 1.609344
-                ) AS `distance`
-            ", [$latitude, $latitude, $longitude])
-            ->orderBy('distance', 'asc')
-            ->get();
-    }
 }
