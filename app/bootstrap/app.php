@@ -36,10 +36,18 @@ return Application::configure(basePath: dirname(__DIR__))
                 default => 500,
             };
 
-            $message = match ($status) {
-                404 => $e->getMessage() ?? 'Record not found.',
-                500 => $e instanceof QueryException ? 'Database query error.' : 'An error has occurred.',
-            };
+            $debug = config('app.debug');
+            // Debug modu açıkken detaylı hata mesajını göster.
+            if($debug){
+                $message = $e->getMessage();
+            }
+            else{
+                $message = match ($status) {
+                    404 => 'Record not found.',
+                    500 => $e instanceof QueryException ? 'Database query error.' : 'An error has occurred.',
+                    default => 'An unexpected error occurred.',
+                };
+            }
 
             return response()->json([
                 'success' => false,
