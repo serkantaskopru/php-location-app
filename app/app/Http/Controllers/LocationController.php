@@ -2,12 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Location\LocationDestroyRequest;
 use App\Http\Requests\Location\LocationGetRouteListRequest;
-use App\Http\Requests\Location\LocationListRequest;
 use App\Http\Requests\Location\LocationStoreRequest;
 use App\Http\Requests\Location\LocationUpdateRequest;
-use App\Http\Requests\Location\LocationViewRequest;
 use App\Services\LocationService;
 use Illuminate\Http\JsonResponse;
 
