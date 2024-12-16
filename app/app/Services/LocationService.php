@@ -10,12 +10,19 @@ class LocationService
 {
     protected LocationRepository $locationRepository;
 
+    // Constructor injection ile LocationRepository bağımlılığı.
     public function __construct(LocationRepository $locationRepository)
     {
         $this->locationRepository = $locationRepository;
     }
 
-    public function detail($id): array
+    /**
+     * Belirtilen ID'ye sahip bir konumun detaylarını getirir.
+     *
+     * @param int $id - Konum ID'si
+     * @return array - Konumun detaylarını dizi olarak döner
+     */
+    public function detail(int $id): array
     {
         $location = $this->locationRepository->find($id);
 
@@ -25,6 +32,11 @@ class LocationService
         ];
     }
 
+    /**
+     * Tüm konumların listesini döner.
+     *
+     * @return array - Konumların listesini dizi olarak döner
+     */
     public function list(): array
     {
         $locations = LocationResource::collection($this->locationRepository->all());
@@ -35,7 +47,14 @@ class LocationService
         ];
     }
 
-    public function getRouteList($latitude, $longitude): array
+    /**
+     * Verilen enlem ve boylam değerine göre bir rota oluşturur.
+     *
+     * @param float $latitude - Başlangıç noktası için enlem
+     * @param float $longitude - Başlangıç noktası için boylam
+     * @return array - Rotayı içeren dizi olarak döner
+     */
+    public function getRouteList(float $latitude, float $longitude): array
     {
         $route = $this->getRouteByLatLong($latitude, $longitude);
 
@@ -45,6 +64,12 @@ class LocationService
         ];
     }
 
+    /**
+     * Yeni bir konum kaydeder.
+     *
+     * @param array $data - Kaydedilecek konum verileri
+     * @return array - Kaydedilen konumun detaylarını dizi olarak döner.
+     */
     public function save(array $data): array
     {
         $location = $this->locationRepository->store($data);
@@ -56,7 +81,14 @@ class LocationService
         ];
     }
 
-    public function update($id, $data): array
+    /**
+     * Belirtilen ID'ye sahip bir konumu günceller.
+     *
+     * @param int $id - Güncellenecek konumun ID'si
+     * @param array $data - Güncelleme verileri
+     * @return array - Güncelleme işleminin sonucunu dizi olarak döner.
+     */
+    public function update(int $id, array $data): array
     {
         $this->locationRepository->update($id, $data);
 
@@ -66,7 +98,13 @@ class LocationService
         ];
     }
 
-    public function destroy($id): array
+    /**
+     * Belirtilen ID'ye sahip bir konumu siler.
+     *
+     * @param int $id - Silinecek konumun ID'si
+     * @return array - Silme işleminin sonucunu dizi olarak döner.
+     */
+    public function destroy(int $id): array
     {
         $this->locationRepository->delete($id);
 
@@ -77,7 +115,8 @@ class LocationService
     }
 
     /**
-     * Verilen koordinatlara (latitude, longitude) göre en yakın konumları mesafeye göre sıralayarak döndürür.
+     * Bu method, verilen bir konuma en yakın noktadan başlayıp bitiş noktasına kadar birbirine yakın her iki noktayı
+     * rota dizisine kayıt eder ve oluşan rotayı döndürür
      *
      * @param float $latitude
      * @param float $longitude
